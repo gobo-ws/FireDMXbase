@@ -1,0 +1,274 @@
+[
+    {
+        "id": "2d9cdd7017a59db9",
+        "type": "tab",
+        "label": "FireDMXbase",
+        "disabled": false,
+        "info": "# **FireDMXbase**\r\nBy Johan Nilsson - [gobo.ws](https://gobo.ws)\r\n\r\nDMX over Internet. This solution allows you to control DMX lighting remotely by using Firebase as a secure bridge, with no need for open ports or a VPN.",
+        "env": []
+    },
+    {
+        "id": "4abb0963184b448f",
+        "type": "group",
+        "z": "2d9cdd7017a59db9",
+        "name": "SENDER",
+        "style": {
+            "label": true,
+            "label-position": "n",
+            "color": "#000000"
+        },
+        "nodes": [
+            "d4e3b89209bbbcd4",
+            "3062170db495731b",
+            "d3a284d6b55dc5fc",
+            "61ff3dd9f2740bcb",
+            "85b329138c191d20",
+            "25fcc7d6b1ffa46a"
+        ],
+        "x": 34,
+        "y": 59,
+        "w": 872,
+        "h": 122
+    },
+    {
+        "id": "54b40a490cf66846",
+        "type": "group",
+        "z": "2d9cdd7017a59db9",
+        "name": "RECEIVER",
+        "style": {
+            "label": true,
+            "label-position": "n",
+            "color": "#000000"
+        },
+        "nodes": [
+            "783ee93555b92232",
+            "1fd541cff00f85cf",
+            "dd2b4ec9e3f3507e",
+            "ea7c5f9d9db47a37"
+        ],
+        "x": 34,
+        "y": 239,
+        "w": 532,
+        "h": 122
+    },
+    {
+        "id": "d4e3b89209bbbcd4",
+        "type": "inject",
+        "z": "2d9cdd7017a59db9",
+        "g": "4abb0963184b448f",
+        "name": "Poll OLA",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 140,
+        "wires": [
+            [
+                "25fcc7d6b1ffa46a"
+            ]
+        ]
+    },
+    {
+        "id": "3062170db495731b",
+        "type": "function",
+        "z": "2d9cdd7017a59db9",
+        "g": "4abb0963184b448f",
+        "name": "Parse OLA JSON",
+        "func": "if(msg.payload && msg.payload.dmx && !msg.payload.error) {\n    msg.payload = msg.payload.dmx;\n} else {\n    msg.payload = { error: msg.payload.error || 'No data' };\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 140,
+        "wires": [
+            [
+                "d3a284d6b55dc5fc"
+            ]
+        ]
+    },
+    {
+        "id": "d3a284d6b55dc5fc",
+        "type": "firebase-out",
+        "z": "2d9cdd7017a59db9",
+        "g": "4abb0963184b448f",
+        "name": "",
+        "database": "9c83ddb867d01548",
+        "path": "/dmx",
+        "pathType": "str",
+        "priority": "1",
+        "queryType": "set",
+        "x": 820,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "61ff3dd9f2740bcb",
+        "type": "comment",
+        "z": "2d9cdd7017a59db9",
+        "g": "4abb0963184b448f",
+        "name": "Fetch DMX values from OLA & send to Firebase",
+        "info": "",
+        "x": 240,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "25fcc7d6b1ffa46a",
+        "type": "function",
+        "z": "2d9cdd7017a59db9",
+        "g": "4abb0963184b448f",
+        "name": "OLA settings",
+        "func": "// OLA settings\nlet host = msg.host || \"localhost\";      // Enter OLA IP/hostname, e.g. \"localhost\"\nlet universe = msg.universe || 1;        // Enter universe, e.g. 1\n\nmsg.url = `http://${host}:9090/get_dmx?u=${universe}`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 140,
+        "wires": [
+            [
+                "85b329138c191d20"
+            ]
+        ]
+    },
+    {
+        "id": "85b329138c191d20",
+        "type": "http request",
+        "z": "2d9cdd7017a59db9",
+        "g": "4abb0963184b448f",
+        "name": "GET OLA DMX",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 460,
+        "y": 140,
+        "wires": [
+            [
+                "3062170db495731b"
+            ]
+        ]
+    },
+    {
+        "id": "783ee93555b92232",
+        "type": "comment",
+        "z": "2d9cdd7017a59db9",
+        "g": "54b40a490cf66846",
+        "name": "Fetch DMX values from Firebase and send to OLA",
+        "info": "",
+        "x": 250,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "1fd541cff00f85cf",
+        "type": "firebase-in",
+        "z": "2d9cdd7017a59db9",
+        "g": "54b40a490cf66846",
+        "name": "",
+        "constraints": {},
+        "database": "9c83ddb867d01548",
+        "inputs": 0,
+        "listenerType": "value",
+        "outputType": "auto",
+        "passThrough": false,
+        "path": "/dmx",
+        "pathType": "str",
+        "useConstraints": false,
+        "x": 110,
+        "y": 320,
+        "wires": [
+            [
+                "ea7c5f9d9db47a37"
+            ]
+        ]
+    },
+    {
+        "id": "dd2b4ec9e3f3507e",
+        "type": "http request",
+        "z": "2d9cdd7017a59db9",
+        "g": "54b40a490cf66846",
+        "name": "POST to OLA set_dmx",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "body",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 440,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "25269f033fbfc1a1",
+        "type": "comment",
+        "z": "2d9cdd7017a59db9",
+        "name": "OLA can be replaced with, for example an sACN or Art-Net node with some modifications. Contact gobo.ws for consultation.",
+        "info": "",
+        "x": 450,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "ea7c5f9d9db47a37",
+        "type": "function",
+        "z": "2d9cdd7017a59db9",
+        "g": "54b40a490cf66846",
+        "name": "OLA settings",
+        "func": "// OLA settings\nlet host = msg.host || \"localhost\";         // Enter OLA IP/hostname, e.g. \"localhost\"\nlet universe = msg.universe || 2;           // Enter universe, e.g. 2\n\nlet dmxString = msg.payload.join(',');\n\nmsg.url = `http://${host}:9090/set_dmx`;\n\nmsg.headers = { \"Content-Type\": \"application/x-www-form-urlencoded\" };\nmsg.payload = `u=${universe}&d=${dmxString}`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 250,
+        "y": 320,
+        "wires": [
+            [
+                "dd2b4ec9e3f3507e"
+            ]
+        ]
+    },
+    {
+        "id": "9c83ddb867d01548",
+        "type": "firebase-config",
+        "name": "My Database",
+        "authType": "anonymous",
+        "claims": {},
+        "createUser": false,
+        "status": {
+            "firestore": false,
+            "storage": false
+        },
+        "useClaims": false
+    }
+]
